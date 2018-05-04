@@ -1,7 +1,7 @@
 ﻿public interface IEnemy : IDamageable, IMoveable
 {
     int Damage { get; set; }
-    IPlayer Target { get; set; }
+    IDamageable Target { get; set; }
 
-    void Attack(IPlayer target);
+    void Attack(IDamageable target);
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
 
 public class EnemyMotor : MonoBehaviour
@@ -18,13 +16,18 @@ public class EnemyMotor : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
     }
 
+    private void Update()
+    {
+        _agent.speed *= _thisEnemy.Speed;
+    }
+
     private void LateUpdate()
     {
         if(_timer >= _timerReset)
         {
             _timer = 0.0f;
 
-            _agent.SetDestination(_thisEnemy.Target.ThisGameObject.transform.position);
+            //_agent.SetDestination(((MonoBehaviour)_thisEnemy.Target));
         }
     }
 }

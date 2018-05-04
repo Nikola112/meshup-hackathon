@@ -1,12 +1,19 @@
 ﻿using UnityEngine;
-using UnityEngine.AI;
 
-public class SwarmEnemy : MonoBehaviour, IEnemy
+public class BaseEnemy : MonoBehaviour, IEnemy
 {
-    private float _timer = 0.0f;
+    protected float _timer = 0.0f;
+    [SerializeField]
+    protected int _health = 100;
+    [SerializeField]
+    protected int _damage = 10;
+    [SerializeField]
+    protected float _speed = 1f;
+    [SerializeField]
+    protected float _distanceToAttack = 0.5f;
 
     [SerializeField]
-    private float _timerReset = 1.0f;
+    protected float _timerReset = 1.0f;
 
     [HideInInspector]
     public GameObject TargetedPlayer;
@@ -15,7 +22,19 @@ public class SwarmEnemy : MonoBehaviour, IEnemy
     public int Damage { get; set; }
     public float Speed { get; set; }
 
-    public IPlayer Target { get; set; }
+    public IDamageable Target { get; set; }
+
+    private void Awake()
+    {
+        Initalize();
+    }
+
+    protected virtual void Initalize()
+    {
+        Health = _health;
+        Damage = _damage;
+        Speed = _speed;
+    }
 
     private void Update()
     {
@@ -26,7 +45,7 @@ public class SwarmEnemy : MonoBehaviour, IEnemy
 
         if (Target != null)
         {
-            if(Vector3.Distance(transform.position, TargetedPlayer.transform.position) < 0.5f)
+            if(Vector3.Distance(transform.position, TargetedPlayer.transform.position) < _distanceToAttack)
             {
                 if(_timer <= 0.0f)
                 {
@@ -37,7 +56,7 @@ public class SwarmEnemy : MonoBehaviour, IEnemy
         }
     }
 
-    public void Attack(IPlayer target)
+    public void Attack(IDamageable target)
     {
         if(target == null)
         {
@@ -58,13 +77,18 @@ public class SwarmEnemy : MonoBehaviour, IEnemy
 
         if (Health <= 0)
         {
-            // Die
+            Death();
         }
+    }
+
+    protected void Death()
+    {
+        Destroy(gameObject);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if (other.CompareTag(Tags.Player))
         {
             IPlayer player = other.gameObject.GetComponent<IPlayer>();
 
