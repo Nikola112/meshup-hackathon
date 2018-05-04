@@ -23,6 +23,8 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     public float Speed { get; set; }
 
     public IDamageable Target { get; set; }
+    public IDamageable OriginalTarget;
+    public Vector3 OriginalTargetPosition;
 
     private void Awake()
     {
@@ -84,6 +86,12 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     protected void Death()
     {
         Destroy(gameObject);
+    }
+
+    public void SetOriginalTarget(IDamageable target)
+    {
+        OriginalTarget = target;
+        OriginalTargetPosition = ((MonoBehaviour) target).transform.position;
     }
 
     private void OnTriggerEnter(Collider other)

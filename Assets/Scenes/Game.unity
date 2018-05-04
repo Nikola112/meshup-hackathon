@@ -358,6 +358,7 @@ GameObject:
   - component: {fileID: 768423178}
   - component: {fileID: 768423177}
   - component: {fileID: 768423176}
+  - component: {fileID: 768423180}
   - component: {fileID: 768423179}
   m_Layer: 9
   m_Name: Enemy
@@ -421,9 +422,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 768423175}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 713990f885c853e40b973ae8f5e50269, type: 3}
+  m_Script: {fileID: 11500000, guid: 2e1eb51c8c65c6142811bb184b8755d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _timerReset: 0.5
+--- !u!114 &768423180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 768423175}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 132dac5269981f647938916a98c4a622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _health: 100
+  _damage: 10
+  _speed: 1
+  _distanceToAttack: 0.5
   _timerReset: 1
   TargetedPlayer: {fileID: 0}
 --- !u!1 &775974869
