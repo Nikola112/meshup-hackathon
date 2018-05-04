@@ -124,9 +124,9 @@ GameObject:
   - component: {fileID: 1608434136}
   - component: {fileID: 1608434135}
   - component: {fileID: 1608434134}
-  - component: {fileID: 1608434137}
   - component: {fileID: 1608434138}
   - component: {fileID: 1608434139}
+  - component: {fileID: 1608434137}
   m_Layer: 0
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -209,9 +209,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1608434132}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 713990f885c853e40b973ae8f5e50269, type: 3}
+  m_Script: {fileID: 11500000, guid: 132dac5269981f647938916a98c4a622, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _health: 100
+  _damage: 10
+  _speed: 1
+  _distanceToAttack: 0.5
+  _timerReset: 1
+  TargetedPlayer: {fileID: 0}
 --- !u!114 &1608434138
 MonoBehaviour:
   m_ObjectHideFlags: 0
