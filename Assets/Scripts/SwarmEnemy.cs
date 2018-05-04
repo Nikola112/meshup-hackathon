@@ -6,6 +6,8 @@ public class SwarmEnemy : MonoBehaviour, IEnemy
     public int Damage { get; set; }
     public float Speed { get; set; }
 
+    public IPlayer Target { get; set; }
+
     public void Attack(IPlayer target)
     {
         target.TakeDamage(Damage);
