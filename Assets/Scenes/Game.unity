@@ -425,7 +425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e1eb51c8c65c6142811bb184b8755d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _timerReset: 0.5
+  _refreshRate: 2
 --- !u!114 &768423180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -440,9 +440,11 @@ MonoBehaviour:
   _health: 100
   _damage: 10
   _speed: 1
+  _distanceToEngage: 5
   _distanceToAttack: 0.5
-  _timerReset: 1
-  TargetedPlayer: {fileID: 0}
+  _fireRate: 1
+  TargetTransform: {fileID: 0}
+  OriginalTargetTransform: {fileID: 0}
 --- !u!1 &775974869
 GameObject:
   m_ObjectHideFlags: 0

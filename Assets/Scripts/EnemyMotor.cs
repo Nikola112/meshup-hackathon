@@ -4,16 +4,16 @@ using UnityEngine.AI;
 public class EnemyMotor : MonoBehaviour
 {
     private float _timer;
+    private float _timerReset;
     [SerializeField]
-    private float _timerReset = 0.5f;
+    private float _refreshRate = 2f;
 
-    private IEnemy _thisEnemy;
+    private BaseEnemy _thisEnemy;
     private NavMeshAgent _agent;
 
     private void Awake()
     {
-        _thisEnemy = GetComponent<IEnemy>();
-        _agent = GetComponent<NavMeshAgent>();
+        Initalize();
     }
 
     private void Update()
@@ -23,11 +23,27 @@ public class EnemyMotor : MonoBehaviour
 
     private void LateUpdate()
     {
+        _timer += Time.deltaTime;
+
         if(_timer >= _timerReset)
         {
             _timer = 0.0f;
 
-            //_agent.SetDestination(((MonoBehaviour)_thisEnemy.Target));
+            _agent.SetDestination(_thisEnemy.TargetTransform.position);
         }
+    }
+
+    private void Initalize()
+    {
+        _thisEnemy = GetComponent<BaseEnemy>();
+        _agent = GetComponent<NavMeshAgent>();
+
+        _timerReset = 1f / _refreshRate;
+        _timer = _timerReset * 0.9f;
+    }
+
+    private void OnEnable()
+    {
+        Initalize();
     }
 }
