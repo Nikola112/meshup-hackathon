@@ -1,8 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class BaseEnemy : MonoBehaviour, IEnemy
 {
+    #region Fields
+
     private SphereCollider col;
+    private PooledObject pool;
     private float _timerReset = 1.0f;
 
     protected float _timer = 1.0f;
@@ -23,12 +27,18 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     public Transform TargetTransform;
     [HideInInspector]
     public IDamageable Target;
-
-    //Spawner sets OriginalTarget
     [HideInInspector]
     public IDamageable OriginalTarget;
     [HideInInspector]
     public Transform OriginalTargetTransform;
+    [HideInInspector]
+    public delegate void DeathEventHandler(object source, EventArgs args);
+    [HideInInspector]
+    public event DeathEventHandler Death;
+
+    #endregion
+
+    #region Properties
 
     public int Health { get; set; }
     public int Damage { get; set; }
@@ -36,10 +46,7 @@ public class BaseEnemy : MonoBehaviour, IEnemy
 
     public float DistanceToEngage
     {
-        get
-        {
-            return _distanceToEngage;
-        }
+        get { return _distanceToEngage; }
         set
         {
             _distanceToEngage = value;
@@ -47,27 +54,39 @@ public class BaseEnemy : MonoBehaviour, IEnemy
         }
     }
 
+    #endregion
+
+    #region Methods
+
     private void Awake()
     {
-        Initalize();
+        col = GetComponent<SphereCollider>();
     }
 
     private void Start()
     {
+        Initalize();
         SetOriginalTargetAsTarget();
+
+        pool = GetComponent<PooledObject>();
     }
 
-    protected virtual void Initalize()
+    private void OnEnable()
     {
-        col = GetComponent<SphereCollider>();
-        col.radius = DistanceToEngage;
-        _timerReset = 1.0f / _fireRate;
+        Initalize();
+    }
 
-        Health = _health;
-        Damage = _damage;
-        Speed = _speed;
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag(Tags.Player))
+        {
+            IPlayer player = other.gameObject.GetComponent<IPlayer>();
 
-        SetOriginalTargetAsTarget();
+            if (player != null)
+            {
+                SetTarget(other.gameObject);
+            }
+        }
     }
 
     private void Update()
@@ -95,34 +114,16 @@ public class BaseEnemy : MonoBehaviour, IEnemy
         }
     }
 
-    public void Attack(IDamageable target)
+    protected virtual void Initalize()
     {
-        if(target == null)
-        {
-            return;
-        }
+        col.radius = DistanceToEngage;
+        _timerReset = 1.0f / _fireRate;
 
-        target.TakeDamage(Damage);
-    }
+        Health = _health;
+        Damage = _damage;
+        Speed = _speed;
 
-    public void ChangeSpeed(float percent)
-    {
-        Speed = Speed * (percent / 100);
-    }
-
-    public void TakeDamage(int damage)
-    {
-        Health -= damage;
-
-        if (Health <= 0)
-        {
-            Death();
-        }
-    }
-
-    protected void Death()
-    {
-        Destroy(gameObject);
+        SetOriginalTargetAsTarget();
     }
 
     public void SetOriginalTarget(GameObject target, Transform differentTransform = null)
@@ -157,21 +158,57 @@ public class BaseEnemy : MonoBehaviour, IEnemy
         TargetTransform = OriginalTargetTransform;
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void Attack(IDamageable target)
     {
-        if (other.CompareTag(Tags.Player))
+        if(target == null)
         {
-            IPlayer player = other.gameObject.GetComponent<IPlayer>();
+            return;
+        }
 
-            if (player != null)
+        target.TakeDamage(Damage);
+    }
+
+    public void ChangeSpeed(float percent)
+    {
+        Speed = Speed * (percent / 100);
+    }
+
+    public void TakeDamage(int damage)
+    {
+        Health -= damage;
+
+        if (Health <= 0)
+        {
+            Die();
+        }
+    }
+
+    protected void Die()
+    {
+        OnDeath();
+        if (pool != null)
+        {
+            pool.Return();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+    }
+
+    protected virtual void OnDeath()
+    {
+        if (Death != null)
+        {
+            Death(this, EventArgs.Empty);
+
+            foreach (Delegate d in Death.GetInvocationList())
             {
-                SetTarget(other.gameObject);
+                Death -= (DeathEventHandler)d;
             }
         }
     }
 
-    private void OnEnable()
-    {
-        Initalize();
-    }
+    #endregion
 }

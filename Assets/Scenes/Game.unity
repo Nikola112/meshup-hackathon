@@ -775,11 +775,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d033af7d41c51e844b76d2ed6ffa27b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _targets:
+  - targetTransform: {fileID: 1195629669}
   _spawnPoints:
   - {fileID: 774545025}
-  _targets:
-  - {fileID: 1195629669}
-  respawnTime: 2
+  respawnTime: 10
 --- !u!1 &1705388082
 GameObject:
   m_ObjectHideFlags: 0
