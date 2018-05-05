@@ -10,6 +10,7 @@ public class EnemyMotor : MonoBehaviour
 
     private BaseEnemy _thisEnemy;
     private NavMeshAgent _agent;
+    private float _initialSpeed;
 
     private void Awake()
     {
@@ -18,7 +19,7 @@ public class EnemyMotor : MonoBehaviour
 
     private void Update()
     {
-        _agent.speed *= _thisEnemy.Speed;
+        _agent.speed = _initialSpeed * _thisEnemy.Speed;
     }
 
     private void LateUpdate()
@@ -40,6 +41,7 @@ public class EnemyMotor : MonoBehaviour
 
         _timerReset = 1f / _refreshRate;
         _timer = _timerReset * 0.9f;
+        _initialSpeed = _agent.speed;
     }
 
     private void OnEnable()

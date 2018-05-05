@@ -7,6 +7,6 @@ public class PooledObject : MonoBehaviour
 
     public void Return()
     {
-
+        parent.Return(pool);
     }
 }

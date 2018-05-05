@@ -5,7 +5,7 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     private SphereCollider col;
     private float _timerReset = 1.0f;
 
-    protected float _timer = 0.0f;
+    protected float _timer = 1.0f;
     [SerializeField]
     protected int _health = 100;
     [SerializeField]
