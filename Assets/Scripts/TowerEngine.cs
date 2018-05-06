@@ -14,9 +14,9 @@ public class TowerEngine : MonoBehaviour {
     public int cout;
     public bool tt;
 
-    public IEnemy Target;
+    public BaseEnemy Target;
     private Type PreffEnemy = typeof(BaseEnemy);
-    public List<IEnemy> InRangeEnemy = new List<IEnemy>();
+    public List<BaseEnemy> InRangeEnemy = new List<BaseEnemy>();
 
 
 
@@ -44,7 +44,7 @@ public class TowerEngine : MonoBehaviour {
     {
         if (InRangeEnemy.Count != 0)
         {
-            foreach (IEnemy enemy in InRangeEnemy)
+            foreach (BaseEnemy enemy in InRangeEnemy)
             {
                 if (enemy == null) InRangeEnemy.Remove(enemy); 
                 if ((enemy.GetType() == PreffEnemy))
@@ -64,7 +64,7 @@ public class TowerEngine : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        IEnemy enemy = other.gameObject.GetComponent<IEnemy>();
+        BaseEnemy enemy = other.gameObject.GetComponent<BaseEnemy>();
         if (enemy != null)
         {
             InRangeEnemy.Add(enemy);
@@ -78,7 +78,7 @@ public class TowerEngine : MonoBehaviour {
     }
     private void OnTriggerExit(Collider other)
     {
-        IEnemy enemy = other.gameObject.GetComponent<IEnemy>();
+        BaseEnemy enemy = other.gameObject.GetComponent<BaseEnemy>();
        
         if (enemy != null)
         {
