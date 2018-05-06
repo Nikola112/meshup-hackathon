@@ -19,18 +19,24 @@ public class EnemyMotor : MonoBehaviour
 
     private void Update()
     {
-        _agent.speed = _initialSpeed * _thisEnemy.Speed;
+        _agent.isStopped = _thisEnemy.stop;
+
+        if (_thisEnemy.stop) return;
+
+        _agent.speed = _initialSpeed * _thisEnemy._speed;
     }
 
     private void LateUpdate()
     {
+        if (_thisEnemy.stop) return;
+
         _timer += Time.deltaTime;
 
         if(_timer >= _timerReset)
         {
             _timer = 0.0f;
 
-            _agent.SetDestination(_thisEnemy.TargetTransform.position);
+            _agent.SetDestination(_thisEnemy.target.transform.position);
         }
     }
 

@@ -1,22 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class BaseEnemy : MonoBehaviour
+public class BaseEnemy : Objective
 {
     #region Fields
 
     private SphereCollider col;
-    private PooledObject pool;
     private float _timerReset = 1.0f;
 
     protected float _timer = 1.0f;
     [SerializeField]
-    protected int _health = 100;
-    [SerializeField]
     protected int _damage = 10;
-    [SerializeField]
-    protected float _speed = 1f;
     [SerializeField]
     protected float _distanceToEngage = 5f;
     [SerializeField]
@@ -24,26 +18,21 @@ public class BaseEnemy : MonoBehaviour
     [SerializeField]
     protected float _fireRate = 1.0f;
 
+    public float _speed = 1f;
+    public EnemyType EnemyType = EnemyType.Swarm;
+    
     [HideInInspector]
-    public Transform TargetTransform;
-    [HideInInspector]
-    public Objective Target;
+    public Objective target;
     [HideInInspector]
     public Objective OriginalTarget;
     [HideInInspector]
-    public Transform OriginalTargetTransform;
+    public EnemySpawner spawner;
     [HideInInspector]
-    public delegate void DeathEventHandler(object source, EventArgs args);
-    [HideInInspector]
-    public event DeathEventHandler Death;
+    public bool stop = false;
 
     #endregion
 
     #region Properties
-
-    public int Health { get; set; }
-    public int Damage { get; set; }
-    public float Speed { get; set; }
 
     public float DistanceToEngage
     {
@@ -64,19 +53,6 @@ public class BaseEnemy : MonoBehaviour
         col = GetComponent<SphereCollider>();
     }
 
-    private void Start()
-    {
-        Initalize();
-        SetOriginalTargetAsTarget();
-
-        pool = GetComponent<PooledObject>();
-    }
-
-    private void OnEnable()
-    {
-        Initalize();
-    }
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag(Tags.Player))
@@ -86,14 +62,8 @@ public class BaseEnemy : MonoBehaviour
             if (player != null)
             {
                 SetTarget(other.gameObject);
-
-                this.Death += EnemyDeath;
             }
         }
-    }
-
-    private void EnemyDeath(object source, EventArgs args)
-    {
     }
 
     private void Update()
@@ -103,61 +73,84 @@ public class BaseEnemy : MonoBehaviour
             _timer -= Time.deltaTime;
         }
 
-        if (Target != null)
+        if (target != null)
         {
-            if(Vector3.Distance(transform.position, TargetTransform.position) < _distanceToAttack)
+            if(Vector3.Distance(transform.position, target.transform.position) < _distanceToAttack)
             {
                 if(_timer <= 0.0f)
                 {
                     _timer = _timerReset;
-                    Attack(Target);
+                    Attack(target);
                 }
             }
         }
     }
 
-    protected virtual void Initalize()
+    protected override void Initalize()
     {
         col.radius = DistanceToEngage;
         _timerReset = 1.0f / _fireRate;
 
-        Health = _health;
-        Damage = _damage;
-        Speed = _speed;
-
         SetOriginalTargetAsTarget();
     }
 
-    public void SetOriginalTarget(GameObject target, Transform differentTransform = null)
+    public void SetOriginalTarget(Objective target)
     {
-        Objective damageable = target.GetComponent<Objective>();
-
-        if (damageable != null)
+        if (target != null)
         {
-            OriginalTarget = target.GetComponent<Objective>();
-
-            if (differentTransform == null) TargetTransform = target.transform;
-            else TargetTransform = differentTransform;
+            OriginalTarget = target;
         }
     }
 
-    public void SetTarget(GameObject target, Transform differentTransform = null)
+    public void SetOriginalTarget(GameObject target)
     {
-        Objective damageable = target.GetComponent<Objective>();
+        Objective newTarget = target.GetComponent<Objective>();
 
-        if (damageable != null)
+        if (newTarget != null)
         {
-            Target = target.GetComponent<Objective>();
+            OriginalTarget = newTarget;
+        }
+    }
 
-            if (differentTransform == null) TargetTransform = target.transform;
-            else TargetTransform = differentTransform;
+    public void SetTarget(Objective target)
+    {
+        if (target != null)
+        {
+            this.target = target;
+
+            target.Death += OnTargetDeath;
+        }
+    }
+
+    private void OnTargetDeath(object source, EventArgs args)
+    {
+        spawner.TargetEliminated((Objective)source);
+
+        var newTarget = spawner.GetNewTargetAtPosition(transform.position);
+
+        if(newTarget == null)
+        {
+            stop = true;
+        }
+        else
+        {
+            SetTarget(newTarget);
+        }
+    }
+
+    public void SetTarget(GameObject target)
+    {
+        Objective newTarget = target.GetComponent<Objective>();
+
+        if (newTarget != null)
+        {
+            this.target = newTarget;
         }
     }
 
     public void SetOriginalTargetAsTarget()
     {
-        Target = OriginalTarget;
-        TargetTransform = OriginalTargetTransform;
+        SetTarget(OriginalTarget);
     }
 
     public virtual void Attack(Objective target)
@@ -167,49 +160,12 @@ public class BaseEnemy : MonoBehaviour
             return;
         }
 
-        target.TakeDamage(Damage);
+        target.TakeDamage(_damage);
     }
 
     public virtual void ChangeSpeed(float percent)
     {
-        Speed = Speed * (percent / 100);
-    }
-
-    public virtual void TakeDamage(int damage, bool armorPiercing = false)
-    {
-        Health -= damage;
-
-        if (Health <= 0)
-        {
-            Die();
-        }
-    }
-
-    protected virtual void Die()
-    {
-        OnDeath();
-        if (pool != null)
-        {
-            pool.Return();
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-
-    }
-
-    protected virtual void OnDeath()
-    {
-        if (Death != null)
-        {
-            Death(this, EventArgs.Empty);
-
-            foreach (Delegate d in Death.GetInvocationList())
-            {
-                Death -= (DeathEventHandler)d;
-            }
-        }
+        _speed = _speed * (percent / 100);
     }
 
     #endregion

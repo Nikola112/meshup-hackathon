@@ -3,15 +3,30 @@ using UnityEngine;
 
 public class Objective : MonoBehaviour
 {
+    private PooledObject pool;
+
     [SerializeField]
-    private int _helath;
+    protected int _helath;
 
     [HideInInspector]
     public delegate void DeathEventHandler(object source, EventArgs args);
     [HideInInspector]
     public event DeathEventHandler Death;
 
-    public virtual void TakeDamage(int damage)
+    private void Start()
+    {
+        Initalize();
+        pool = GetComponent<PooledObject>();
+    }
+
+    private void OnEnable()
+    {
+        Initalize();
+    }
+
+    protected virtual void Initalize() { }
+
+    public virtual void TakeDamage(int damage, bool armorPiercing = false)
     {
         _helath -= damage;
 
@@ -25,8 +40,14 @@ public class Objective : MonoBehaviour
     {
         OnDeath();
 
-        // TEMP
-        Destroy(gameObject, 1f);
+        if (pool != null)
+        {
+            pool.Return();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     protected virtual void OnDeath()
