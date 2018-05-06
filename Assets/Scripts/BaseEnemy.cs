@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class BaseEnemy : MonoBehaviour, IEnemy
 {
-    protected float _timer = 0.0f;
+    #region Fields
+
+    private SphereCollider col;
+    private PooledObject pool;
+    private float _timerReset = 1.0f;
+
+    protected float _timer = 1.0f;
     [SerializeField]
     protected int _health = 100;
     [SerializeField]
@@ -10,32 +17,76 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     [SerializeField]
     protected float _speed = 1f;
     [SerializeField]
-    protected float _distanceToAttack = 0.5f;
-
+    protected float _distanceToEngage = 5f;
     [SerializeField]
-    protected float _timerReset = 1.0f;
+    protected float _distanceToAttack = 0.5f;
+    [SerializeField]
+    protected float _fireRate = 1.0f;
 
     [HideInInspector]
-    public GameObject TargetedPlayer;
+    public Transform TargetTransform;
+    [HideInInspector]
+    public IDamageable Target;
+    [HideInInspector]
+    public IDamageable OriginalTarget;
+    [HideInInspector]
+    public Transform OriginalTargetTransform;
+    [HideInInspector]
+    public delegate void DeathEventHandler(object source, EventArgs args);
+    [HideInInspector]
+    public event DeathEventHandler Death;
+
+    #endregion
+
+    #region Properties
 
     public int Health { get; set; }
     public int Damage { get; set; }
     public float Speed { get; set; }
 
-    public IDamageable Target { get; set; }
-    public IDamageable OriginalTarget;
-    public Vector3 OriginalTargetPosition;
+    public float DistanceToEngage
+    {
+        get { return _distanceToEngage; }
+        set
+        {
+            _distanceToEngage = value;
+            col.radius = _distanceToEngage;
+        }
+    }
+
+    #endregion
+
+    #region Methods
 
     private void Awake()
+    {
+        col = GetComponent<SphereCollider>();
+    }
+
+    private void Start()
+    {
+        Initalize();
+        SetOriginalTargetAsTarget();
+
+        pool = GetComponent<PooledObject>();
+    }
+
+    private void OnEnable()
     {
         Initalize();
     }
 
-    protected virtual void Initalize()
+    private void OnTriggerEnter(Collider other)
     {
-        Health = _health;
-        Damage = _damage;
-        Speed = _speed;
+        if (other.CompareTag(Tags.Player))
+        {
+            IPlayer player = other.gameObject.GetComponent<IPlayer>();
+
+            if (player != null)
+            {
+                SetTarget(other.gameObject);
+            }
+        }
     }
 
     private void Update()
@@ -47,7 +98,7 @@ public class BaseEnemy : MonoBehaviour, IEnemy
 
         if (Target != null)
         {
-            if(Vector3.Distance(transform.position, TargetedPlayer.transform.position) < _distanceToAttack)
+            if(Vector3.Distance(transform.position, TargetTransform.position) < _distanceToAttack)
             {
                 if(_timer <= 0.0f)
                 {
@@ -55,7 +106,56 @@ public class BaseEnemy : MonoBehaviour, IEnemy
                     Attack(Target);
                 }
             }
+
+            if(Target.Health <= 0)
+            {
+                SetOriginalTargetAsTarget();
+            }
         }
+    }
+
+    protected virtual void Initalize()
+    {
+        col.radius = DistanceToEngage;
+        _timerReset = 1.0f / _fireRate;
+
+        Health = _health;
+        Damage = _damage;
+        Speed = _speed;
+
+        SetOriginalTargetAsTarget();
+    }
+
+    public void SetOriginalTarget(GameObject target, Transform differentTransform = null)
+    {
+        IDamageable damageable = target.GetComponent<IDamageable>();
+
+        if (damageable != null)
+        {
+            OriginalTarget = target.GetComponent<IDamageable>();
+
+            if (differentTransform == null) TargetTransform = target.transform;
+            else TargetTransform = differentTransform;
+        }
+    }
+
+    public void SetTarget(GameObject target, Transform differentTransform = null)
+    {
+        IDamageable damageable = target.GetComponent<IDamageable>();
+
+        if (damageable != null)
+        {
+            Target = target.GetComponent<IDamageable>();
+
+            if (differentTransform == null) TargetTransform = target.transform;
+            else TargetTransform = differentTransform;
+        }
+    }
+
+    public void SetOriginalTargetAsTarget()
+    {
+        Target = OriginalTarget;
+        TargetTransform = OriginalTargetTransform;
     }
 
     public void Attack(IDamageable target)
@@ -79,31 +179,36 @@ public class BaseEnemy : MonoBehaviour, IEnemy
 
         if (Health <= 0)
         {
-            Death();
+            Die();
         }
     }
 
-    protected void Death()
+    protected void Die()
     {
-        Destroy(gameObject);
-    }
-
-    public void SetOriginalTarget(IDamageable target)
-    {
-        OriginalTarget = target;
-        OriginalTargetPosition = ((MonoBehaviour) target).transform.position;
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag(Tags.Player))
+        OnDeath();
+        if (pool != null)
         {
-            IPlayer player = other.gameObject.GetComponent<IPlayer>();
+            pool.Return();
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
 
-            if (player != null)
+    }
+
+    protected virtual void OnDeath()
+    {
+        if (Death != null)
+        {
+            Death(this, EventArgs.Empty);
+
+            foreach (Delegate d in Death.GetInvocationList())
             {
-                Target = player;
+                Death -= (DeathEventHandler)d;
             }
         }
     }
+
+    #endregion
 }
