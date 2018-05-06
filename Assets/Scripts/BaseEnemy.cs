@@ -113,11 +113,6 @@ public class BaseEnemy : MonoBehaviour
                     Attack(Target);
                 }
             }
-
-            if(Target.Health <= 0)
-            {
-                SetOriginalTargetAsTarget();
-            }
         }
     }
 

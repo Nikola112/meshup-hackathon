@@ -16,7 +16,7 @@ public class EnemySpawner : MonoBehaviour
     {
         for (int i = 0; i < _targets.Length; i++)
         {
-            _targets[i].target = _targets[i].targetTransform.GetComponent<IDamageable>();
+            _targets[i].target = _targets[i].targetTransform.GetComponent<Objective>();
         }
     }
 
