@@ -11,6 +11,9 @@ public class TowerEngine : MonoBehaviour {
     public float Reload;
     private float curReload;
 
+    public int cout;
+    public bool tt;
+
     public IEnemy Target;
     private Type PreffEnemy = typeof(BaseEnemy);
     public List<IEnemy> InRangeEnemy = new List<IEnemy>();
@@ -20,13 +23,19 @@ public class TowerEngine : MonoBehaviour {
     //attacks target if it exists
     public void Attack()
     {
-        if (Target == null)
+        
+            if (Target == null)
         {
             SelectTarget();
         }
         else
         {
             Target.TakeDamage(Demage);
+            if ((Target != null) && (Target.Health <= 0))
+            {
+                InRangeEnemy.Remove(Target);
+                Target = null;
+            }
         }
     }
 
@@ -41,6 +50,7 @@ public class TowerEngine : MonoBehaviour {
                 if ((enemy.GetType() == PreffEnemy))
                 {
                     Target = enemy;
+                    break;
                 }
 
             }
@@ -99,6 +109,12 @@ public class TowerEngine : MonoBehaviour {
             curReload = 0;
         }
         else curReload +=Time.deltaTime;
+
+
+        if (Target != null) tt = true;
+        else tt = false;
+
+        cout = InRangeEnemy.Count;
 
 }
 }
