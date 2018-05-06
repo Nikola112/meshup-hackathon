@@ -31,12 +31,15 @@ public class TowerEngine : MonoBehaviour {
         else
         {
             Target.TakeDamage(Demage);
-            if ((Target != null) && (Target.Health <= 0))
-            {
-                InRangeEnemy.Remove(Target);
-                Target = null;
-            }
+            Target.Death += DeathTrigger;
+
         }
+    }
+
+    private void DeathTrigger(object source, EventArgs args)
+    {
+        InRangeEnemy.Remove(Target);
+        Target = null;
     }
 
     //select new target from list
