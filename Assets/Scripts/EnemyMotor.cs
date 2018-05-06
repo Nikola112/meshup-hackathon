@@ -23,7 +23,7 @@ public class EnemyMotor : MonoBehaviour
 
         if (_thisEnemy.stop) return;
 
-        _agent.speed = _initialSpeed * _thisEnemy._speed;
+        _agent.speed = _initialSpeed * _thisEnemy.speed;
     }
 
     private void LateUpdate()

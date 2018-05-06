@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class BaseEnemy : Objective
 {
     #region Fields
 
     private SphereCollider col;
+    private NavMeshAgent agent;
     private float _timerReset = 1.0f;
+    private bool end = false;
 
     protected float _timer = 1.0f;
     [SerializeField]
@@ -19,6 +23,7 @@ public class BaseEnemy : Objective
     protected float _fireRate = 1.0f;
 
     public float _speed = 1f;
+    public float speed;
     public EnemyType EnemyType = EnemyType.Swarm;
     
     [HideInInspector]
@@ -51,6 +56,7 @@ public class BaseEnemy : Objective
     private void Awake()
     {
         col = GetComponent<SphereCollider>();
+        agent = GetComponent<NavMeshAgent>();
     }
 
     private void OnTriggerEnter(Collider other)
@@ -68,6 +74,8 @@ public class BaseEnemy : Objective
 
     private void Update()
     {
+        if (stop) return;
+
         if(_timer > 0.0f)
         {
             _timer -= Time.deltaTime;
@@ -88,6 +96,10 @@ public class BaseEnemy : Objective
 
     protected override void Initalize()
     {
+        base.Initalize();
+
+        speed = _speed;
+
         col.radius = DistanceToEngage;
         _timerReset = 1.0f / _fireRate;
 
@@ -131,6 +143,7 @@ public class BaseEnemy : Objective
         if(newTarget == null)
         {
             stop = true;
+            end = true;
         }
         else
         {
@@ -165,7 +178,12 @@ public class BaseEnemy : Objective
 
     public virtual void ChangeSpeed(float percent)
     {
-        _speed = _speed * (percent / 100);
+        speed = _speed * (percent / 100);
+    }
+
+    public void AddForce(Vector3 direction, float force)
+    {
+        agent.velocity = direction * force;
     }
 
     #endregion

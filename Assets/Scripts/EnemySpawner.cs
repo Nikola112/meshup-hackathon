@@ -13,6 +13,8 @@ public class EnemySpawner : MonoBehaviour
 
     public float respawnTime = 2f;
 
+    private int num = 0;
+
     private void Start()
     {
         swarm = GetComponent<ObjectPoolingSystem>();
@@ -22,16 +24,19 @@ public class EnemySpawner : MonoBehaviour
     {
         _timer += Time.deltaTime;
 
-        if(_timer >= respawnTime)
+        if(_timer >= respawnTime && _targets.Count > 0 && num < 2)
         {
-            var enemy = swarm.Get(false);
+            var enemy = swarm.Get(_spawnPoints[Random.Range(0, _spawnPoints.Length)].position, Quaternion.identity, false);
             var enemyScript = enemy.GetComponent<BaseEnemy>();
 
             var target = _targets[Random.Range(0, _targets.Count)];
 
             enemyScript.OriginalTarget = target;
+            enemyScript.spawner = this;
 
             enemy.SetActive(true);
+
+            num++;
 
             _timer = 0f;
         }
@@ -39,6 +44,8 @@ public class EnemySpawner : MonoBehaviour
 
     public Objective GetNewTargetAtPosition(Vector3 pos)
     {
+        if (_targets.Count == 0) return null;
+
         Objective theChosenOne = _targets[0];
         float dist = Vector3.Distance(pos, theChosenOne.transform.position);
 

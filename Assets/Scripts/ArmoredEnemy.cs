@@ -10,4 +10,11 @@ public class ArmoredEnemy : BaseEnemy
         damage = armorPiercing ? damage - _armor : damage;
         base.TakeDamage(damage);
     }
+
+    protected override void Initalize()
+    {
+        base.Initalize();
+
+        EnemyType = EnemyType.Armored;
+    }
 }

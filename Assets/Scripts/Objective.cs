@@ -4,6 +4,7 @@ using UnityEngine;
 public class Objective : MonoBehaviour
 {
     private PooledObject pool;
+    private int health;
 
     [SerializeField]
     protected int _helath;
@@ -24,13 +25,16 @@ public class Objective : MonoBehaviour
         Initalize();
     }
 
-    protected virtual void Initalize() { }
+    protected virtual void Initalize()
+    {
+        health = _helath;
+    }
 
     public virtual void TakeDamage(int damage, bool armorPiercing = false)
     {
-        _helath -= damage;
+        health -= damage;
 
-        if(_helath <= 0)
+        if(health <= 0)
         {
             Die();
         }
