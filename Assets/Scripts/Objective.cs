@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
 
-public class Objective : MonoBehaviour, IDamageable
+public class Objective : MonoBehaviour
 {
-    public int Health { get; set; }
-
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage)
     {
-        Debug.Log("Damage");
     }
 }

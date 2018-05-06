@@ -4,5 +4,5 @@
 public class Target
 {
     public Transform targetTransform;
-    public IDamageable target;
+    public Objective target;
 }

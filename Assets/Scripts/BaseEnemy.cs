@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class BaseEnemy : MonoBehaviour, IEnemy
+public class BaseEnemy : MonoBehaviour
 {
     #region Fields
 
@@ -26,9 +27,9 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     [HideInInspector]
     public Transform TargetTransform;
     [HideInInspector]
-    public IDamageable Target;
+    public Objective Target;
     [HideInInspector]
-    public IDamageable OriginalTarget;
+    public Objective OriginalTarget;
     [HideInInspector]
     public Transform OriginalTargetTransform;
     [HideInInspector]
@@ -80,13 +81,19 @@ public class BaseEnemy : MonoBehaviour, IEnemy
     {
         if (other.CompareTag(Tags.Player))
         {
-            IPlayer player = other.gameObject.GetComponent<IPlayer>();
+            Objective player = other.gameObject.GetComponent<Objective>();
 
             if (player != null)
             {
                 SetTarget(other.gameObject);
+
+                this.Death += EnemyDeath;
             }
         }
+    }
+
+    private void EnemyDeath(object source, EventArgs args)
+    {
     }
 
     private void Update()
@@ -128,11 +135,11 @@ public class BaseEnemy : MonoBehaviour, IEnemy
 
     public void SetOriginalTarget(GameObject target, Transform differentTransform = null)
     {
-        IDamageable damageable = target.GetComponent<IDamageable>();
+        Objective damageable = target.GetComponent<Objective>();
 
         if (damageable != null)
         {
-            OriginalTarget = target.GetComponent<IDamageable>();
+            OriginalTarget = target.GetComponent<Objective>();
 
             if (differentTransform == null) TargetTransform = target.transform;
             else TargetTransform = differentTransform;
@@ -141,11 +148,11 @@ public class BaseEnemy : MonoBehaviour, IEnemy
 
     public void SetTarget(GameObject target, Transform differentTransform = null)
     {
-        IDamageable damageable = target.GetComponent<IDamageable>();
+        Objective damageable = target.GetComponent<Objective>();
 
         if (damageable != null)
         {
-            Target = target.GetComponent<IDamageable>();
+            Target = target.GetComponent<Objective>();
 
             if (differentTransform == null) TargetTransform = target.transform;
             else TargetTransform = differentTransform;
@@ -158,7 +165,7 @@ public class BaseEnemy : MonoBehaviour, IEnemy
         TargetTransform = OriginalTargetTransform;
     }
 
-    public void Attack(IDamageable target)
+    public virtual void Attack(Objective target)
     {
         if(target == null)
         {
@@ -168,12 +175,12 @@ public class BaseEnemy : MonoBehaviour, IEnemy
         target.TakeDamage(Damage);
     }
 
-    public void ChangeSpeed(float percent)
+    public virtual void ChangeSpeed(float percent)
     {
         Speed = Speed * (percent / 100);
     }
 
-    public void TakeDamage(int damage)
+    public virtual void TakeDamage(int damage, bool armorPiercing = false)
     {
         Health -= damage;
 
@@ -183,7 +190,7 @@ public class BaseEnemy : MonoBehaviour, IEnemy
         }
     }
 
-    protected void Die()
+    protected virtual void Die()
     {
         OnDeath();
         if (pool != null)
