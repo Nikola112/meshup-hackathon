@@ -14,7 +14,7 @@ public class BaseEnemy : Objective
 
     protected float _timer = 1.0f;
     [SerializeField]
-    protected int _damage = 10;
+    protected int _damage = 1;
     [SerializeField]
     protected float _distanceToEngage = 5f;
     [SerializeField]
