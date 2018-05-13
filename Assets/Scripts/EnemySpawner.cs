@@ -24,7 +24,7 @@ public class EnemySpawner : MonoBehaviour
     {
         _timer += Time.deltaTime;
 
-        if(_timer >= respawnTime && _targets.Count > 0 && num < 2)
+        if(_timer >= respawnTime && _targets.Count > 0 && num < 10)
         {
             var enemy = swarm.Get(_spawnPoints[Random.Range(0, _spawnPoints.Length)].position, Quaternion.identity, false);
             var enemyScript = enemy.GetComponent<BaseEnemy>();
