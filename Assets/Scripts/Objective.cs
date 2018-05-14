@@ -20,6 +20,7 @@ public class Objective : MonoBehaviour
         pool = GetComponent<PooledObject>();
     }
 
+
     private void OnEnable()
     {
         Initalize();

@@ -15,7 +15,7 @@ public class TowerEngine : MonoBehaviour {
     public bool tt;
 
     public BaseEnemy Target;
-    private Type PreffEnemy = typeof(BaseEnemy);
+    private EnemyType PreffEnemy = EnemyType.Swarm;
     public List<BaseEnemy> InRangeEnemy = new List<BaseEnemy>();
 
 
@@ -31,7 +31,8 @@ public class TowerEngine : MonoBehaviour {
         else
         {
             Target.TakeDamage(Demage);
-            Target.Death += DeathTrigger;
+            if (Target != null)
+                Target.Death += DeathTrigger;
 
         }
     }
@@ -50,7 +51,7 @@ public class TowerEngine : MonoBehaviour {
             foreach (BaseEnemy enemy in InRangeEnemy)
             {
                 if (enemy == null) InRangeEnemy.Remove(enemy); 
-                if ((enemy.GetType() == PreffEnemy))
+                if ((enemy.EnemyType == PreffEnemy))
                 {
                     Target = enemy;
                     break;
@@ -72,7 +73,7 @@ public class TowerEngine : MonoBehaviour {
         {
             InRangeEnemy.Add(enemy);
             if (Target == null) Target = enemy;
-            if ((enemy != Target)&&(enemy.GetType() == PreffEnemy) && (Target.GetType() != PreffEnemy)) Target = enemy;
+            if ((enemy != Target)&&(enemy.EnemyType== PreffEnemy) && (Target.EnemyType != PreffEnemy)) Target = enemy;
             
       
         }
