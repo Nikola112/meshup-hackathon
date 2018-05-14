@@ -11,6 +11,7 @@ public class BaseEnemy : Objective
     private NavMeshAgent agent;
     private float _timerReset = 1.0f;
     private bool end = false;
+    private bool lastDestination = false;
 
     protected float _timer = 1.0f;
     [SerializeField]
@@ -30,6 +31,8 @@ public class BaseEnemy : Objective
     public Objective target;
     [HideInInspector]
     public Objective OriginalTarget;
+    [HideInInspector]
+    public Waypoint waypoint;
     [HideInInspector]
     public EnemySpawner spawner;
     [HideInInspector]
@@ -83,6 +86,29 @@ public class BaseEnemy : Objective
 
         if (target != null)
         {
+            if(target == OriginalTarget && !lastDestination)
+            {
+                if(waypoint == null)
+                {
+                    waypoint = Waypoints.Instance.GetNearestWaypoint(target, transform.position);
+                }
+                else
+                {
+                    if (Vector3.Distance(transform.position, waypoint.transform.position) < 0.5f)
+                    {
+                        if(waypoint.nextWaypoint != null)
+                        {
+                            waypoint = waypoint.nextWaypoint;
+                        }
+                        else
+                        {
+                            lastDestination = true;
+                            waypoint = null;
+                        }
+                    }
+                }
+            }
+
             if(Vector3.Distance(transform.position, target.transform.position) < _distanceToAttack)
             {
                 if(_timer <= 0.0f)
@@ -148,6 +174,7 @@ public class BaseEnemy : Objective
         else
         {
             SetTarget(newTarget);
+            lastDestination = false;
         }
     }
 

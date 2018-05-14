@@ -36,7 +36,14 @@ public class EnemyMotor : MonoBehaviour
         {
             _timer = 0.0f;
 
-            _agent.SetDestination(_thisEnemy.target.transform.position);
+            if(_thisEnemy.target == _thisEnemy.OriginalTarget && _thisEnemy.waypoint != null)
+            {
+                _agent.SetDestination(_thisEnemy.waypoint.transform.position);
+            }
+            else
+            {
+                _agent.SetDestination(_thisEnemy.target.transform.position);
+            }
         }
     }
 
